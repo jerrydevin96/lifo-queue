@@ -21,7 +21,7 @@ func pushHandler(data string) string {
 		responseData, _ := json.Marshal(responseJSON)
 		return string(responseData)
 	}
-	err = db.InsertNewRecord(index, JSONValue["value"])
+	err = db.InsertNewRecord((index+1), JSONValue["value"])
 	if err != nil {
 		log.Println("[ERROR] " + err.Error())
 		responseJSON["response"] = err.Error()
