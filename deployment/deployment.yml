@@ -15,7 +15,7 @@ spec:
       - name: lifo-queue
         image: jerrydevin96/lifo-queue
         ports:
-        - continerPort: 8080
+        - containerPort: 8080
         envFrom:
         - configMapRef:
             name: appconfig
