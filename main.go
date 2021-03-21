@@ -1,43 +1,44 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
 
-	_ "github.com/lib/pq"
-)
-
-const (
-	host     = "35.238.100.247"
-	port     = 5432
-	user     = "admin"
-	password = "admin"
-	dbname   = "project"
+	"github.com/jerrydevin96/lifo-queue/startup"
 )
 
 func main() {
-	// connection string
-	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-
-	// open database
-	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-
-	// close database
-	defer db.Close()
-
-	// check db
-	err = db.Ping()
-	CheckError(err)
-
-	fmt.Println("Connected!")
-	response, err := db.Exec("create table lifo(entry int unique, value varchar(255))")
-	CheckError(err)
-	fmt.Println(response)
+	log.Println("Starting the Application")
+	err := startup.AppStartup()
+	if err != nil {
+		log.Panic("[APPLICATION STARTUP ERROR] " + err.Error())
+	}
+	log.Println("App startup completed starting API service")
+	http.HandleFunc("/v1/push", push)
+	http.HandleFunc("/v1/pop", pop)
+	log.Println("Starting API service on port 8080")
+	err = http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Panic("[API STARTUP ERROR] " + err.Error())
+	}
 }
 
-func CheckError(err error) {
+func push(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	(w).Header().Set("Access-Control-Allow-Origin", "*")
+	JSONVal, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		panic(err)
+		log.Println("[ERROR] " + err.Error())
+		fmt.Fprint(w, `{response: `+err.Error()+`}`)
 	}
+	response := pushHandler(string(JSONVal))
+	fmt.Fprint(w, response)
+}
+
+func pop(w http.ResponseWriter, r *http.Request) {
+	(w).Header().Set("Access-Control-Allow-Origin", "*")
+	response := popHandler()
+	fmt.Fprint(w, response)
 }

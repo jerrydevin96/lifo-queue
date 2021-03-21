@@ -6,28 +6,29 @@ import (
 	"log"
 	"strconv"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jerrydevin96/lifo-queue/config"
 	_ "github.com/lib/pq"
-)
-
-const (
-	host     = "35.238.100.247"
-	port     = 5432
-	user     = "admin"
-	password = "admin"
-	dbname   = "project"
 )
 
 func connectDB() (*sql.DB, error) {
 	var db *sql.DB
 	var err error
-	// psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-	// 	config.Configurations.DBHost, config.Configurations.DBPort,
-	// 	config.Configurations.DBUser, config.Configurations.DBPassword,
-	// 	config.Configurations.DBName)
-	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	sqlconn := ``
+	sqlDriver := ``
+	if config.Configurations.DBProvider == "postgres" {
+		sqlDriver = "postgres"
+		sqlconn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+			config.Configurations.DBHost, config.Configurations.DBPort,
+			config.Configurations.DBUser, config.Configurations.DBPassword,
+			config.Configurations.DBName)
+	} else if config.Configurations.DBProvider == "maria" {
+		sqlDriver = "mysql"
+		sqlconn = config.Configurations.DBUser + ":" + config.Configurations.DBPassword + "@tcp(" +
+			config.Configurations.DBHost + ":" + config.Configurations.DBPort + ")/" + config.Configurations.DBName
+	}
 
-	db, err = sql.Open("postgres", psqlconn)
+	db, err = sql.Open(sqlDriver, sqlconn)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +47,7 @@ func GetLastRecord() (int, string, error) {
 	var lastValue string
 	var err error
 	log.Println("fetching last record from " + config.Configurations.TableName + " table")
-	query := `select "entry", "value" from "` + config.Configurations.TableName + `" order by entry desc limit 1`
+	query := `select entry, value from ` + config.Configurations.TableName + ` order by entry desc limit 1`
 	db, err := connectDB()
 	if err != nil {
 		log.Println(`[ERROR occured] ` + err.Error())
@@ -61,19 +62,27 @@ func GetLastRecord() (int, string, error) {
 	}
 
 	defer rows.Close()
-	rows.Next()
-	err = rows.Scan(&lastIndex, &lastValue)
-	if err != nil {
-		log.Println(`[ERROR occured] ` + err.Error())
-		return 0, "", err
+	status := rows.Next()
+	if status {
+		err = rows.Scan(&lastIndex, &lastValue)
+		if err != nil {
+			log.Println(`[ERROR occured] ` + err.Error())
+			return 0, "", err
+		}
+		log.Println("Query response for last record entry = " + strconv.Itoa(lastIndex) + " value = " + lastValue)
+	} else {
+		log.Println("no elements are present in queue")
+		lastIndex = 0
+		lastValue = ""
+		err = nil
 	}
-	log.Println("Query response for last record entry = " + strconv.Itoa(lastIndex) + " value = " + lastValue)
+
 	return lastIndex, lastValue, err
 }
 
 func DeleteLastRecord(entry int) error {
 	var err error
-	deleteStatement := `delete from "` + config.Configurations.TableName + `" where entry=` + strconv.Itoa(entry)
+	deleteStatement := `delete from ` + config.Configurations.TableName + ` where entry=` + strconv.Itoa(entry)
 	db, err := connectDB()
 	if err != nil {
 		log.Println(`[ERROR occured] ` + err.Error())
@@ -99,7 +108,13 @@ func InsertNewRecord(entry int, value string) error {
 	}
 	defer db.Close()
 	log.Println("inserting new record into " + config.Configurations.TableName + " table")
-	insertStatement := `insert into "` + config.Configurations.TableName + `" ("entry", "value") values ($1, $2)`
+	valuesPlaceHolder := ""
+	if config.Configurations.DBProvider == "postgres" {
+		valuesPlaceHolder = "($1, $2)"
+	} else if config.Configurations.DBProvider == "maria" {
+		valuesPlaceHolder = "(?, ?)"
+	}
+	insertStatement := `insert into ` + config.Configurations.TableName + ` (entry, value) values ` + valuesPlaceHolder
 	_, err = db.Exec(insertStatement, entry, value)
 	if err != nil {
 		log.Println(`[ERROR occured] ` + err.Error())
@@ -118,14 +133,19 @@ func ReinitializeTable() error {
 	}
 	defer db.Close()
 	log.Println("dropping table " + config.Configurations.TableName)
-	dropStatement := `drop table "` + config.Configurations.TableName + `"`
+	dropStatement := ""
+	if config.Configurations.DBProvider == "postgres" {
+		dropStatement = `drop table "` + config.Configurations.TableName + `"`
+	} else if config.Configurations.DBProvider == "maria" {
+		dropStatement = `drop table if exists ` + config.Configurations.TableName
+	}
 	_, err = db.Exec(dropStatement)
 	if err != nil {
 		log.Println(`[ERROR occured] ` + err.Error())
 		return err
 	}
 	log.Println(config.Configurations.TableName + " dropped successfully")
-	createStatement := `create table "` + config.Configurations.TableName + `" ("entry" integer unique, "value" character varying(255))`
+	createStatement := `create table ` + config.Configurations.TableName + ` (entry integer unique, value character varying(255))`
 	_, err = db.Exec(createStatement)
 	if err != nil {
 		log.Println(`[ERROR occured] ` + err.Error())

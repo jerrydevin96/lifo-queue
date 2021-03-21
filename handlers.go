@@ -21,7 +21,7 @@ func pushHandler(data string) string {
 		responseData, _ := json.Marshal(responseJSON)
 		return string(responseData)
 	}
-	err = db.InsertNewRecord((index+1), JSONValue["value"])
+	err = db.InsertNewRecord((index + 1), JSONValue["value"])
 	if err != nil {
 		log.Println("[ERROR] " + err.Error())
 		responseJSON["response"] = err.Error()
@@ -34,12 +34,10 @@ func pushHandler(data string) string {
 	return response
 }
 
-func popHandler(data string) string {
+func popHandler() string {
 	response := ``
 	log.Println("Pushing item into queue")
-	var JSONValue map[string]string
 	responseJSON := make(map[string]string)
-	json.Unmarshal([]byte(data), &JSONValue)
 	log.Println("fetching current last record")
 	index, value, err := db.GetLastRecord()
 	if err != nil {
@@ -49,18 +47,27 @@ func popHandler(data string) string {
 		responseData, _ := json.Marshal(responseJSON)
 		return string(responseData)
 	}
-	log.Println("Deleting current last record")
-	err = db.DeleteLastRecord(index)
-	if err != nil {
-		log.Println("[ERROR] " + err.Error())
-		responseJSON["message"] = err.Error()
-		responseJSON["value"] = "failed to fetch"
+	if index != 0 {
+		log.Println("Deleting current last record")
+		err = db.DeleteLastRecord(index)
+		if err != nil {
+			log.Println("[ERROR] " + err.Error())
+			responseJSON["message"] = err.Error()
+			responseJSON["value"] = "failed to fetch"
+			responseData, _ := json.Marshal(responseJSON)
+			return string(responseData)
+		}
+		responseJSON["message"] = "successfully performed POP"
+		responseJSON["value"] = value
 		responseData, _ := json.Marshal(responseJSON)
-		return string(responseData)
+		response = string(responseData)
+	} else {
+		log.Println("no elements are present in queue")
+		responseJSON["message"] = "No elements available in queue"
+		responseJSON["value"] = ""
+		responseData, _ := json.Marshal(responseJSON)
+		response = string(responseData)
 	}
-	responseJSON["message"] = "successfully performed POP"
-	responseJSON["value"] = value
-	responseData, _ := json.Marshal(responseJSON)
-	response = string(responseData)
+
 	return response
 }
