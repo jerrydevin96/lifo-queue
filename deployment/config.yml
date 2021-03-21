@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: appconfig
+data:
+  DBHOST: "<db host>"
+  DBPORT: "<db port>"
+  DBUSER: "<db user>"
+  DBNAME: "<db name>"
+  TABLENAME: "<db table name>"
+  DBPROVIDER: "<db provider (postgres/maria)>"
+  REINITIALIZE_TABLE: "<Y/N>"

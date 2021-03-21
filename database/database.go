@@ -6,8 +6,8 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/jerrydevin96/lifo-queue/config"
 	_ "github.com/lib/pq"
-	// "github.com/jerrydevin96/lifo-queue/config"
 )
 
 const (
@@ -21,7 +21,7 @@ const (
 func connectDB() (*sql.DB, error) {
 	var db *sql.DB
 	var err error
-	// psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+	// psqlconn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 	// 	config.Configurations.DBHost, config.Configurations.DBPort,
 	// 	config.Configurations.DBUser, config.Configurations.DBPassword,
 	// 	config.Configurations.DBName)
@@ -45,8 +45,8 @@ func GetLastRecord() (int, string, error) {
 	var lastIndex int
 	var lastValue string
 	var err error
-	log.Println("fetching last record from lifo table")
-	query := `select "entry", "value" from lifo order by entry desc limit 1`
+	log.Println("fetching last record from " + config.Configurations.TableName + " table")
+	query := `select "entry", "value" from "` + config.Configurations.TableName + `" order by entry desc limit 1`
 	db, err := connectDB()
 	if err != nil {
 		log.Println(`[ERROR occured] ` + err.Error())
@@ -73,7 +73,7 @@ func GetLastRecord() (int, string, error) {
 
 func DeleteLastRecord(entry int) error {
 	var err error
-	deleteStatement := `delete from lifo where entry=` + strconv.Itoa(entry)
+	deleteStatement := `delete from "` + config.Configurations.TableName + `" where entry=` + strconv.Itoa(entry)
 	db, err := connectDB()
 	if err != nil {
 		log.Println(`[ERROR occured] ` + err.Error())
@@ -98,13 +98,38 @@ func InsertNewRecord(entry int, value string) error {
 		return err
 	}
 	defer db.Close()
-	log.Println("inserting new record into lifo table")
-	insertStatement := `insert into lifo ("entry", "value") values ($1, $2)`
+	log.Println("inserting new record into " + config.Configurations.TableName + " table")
+	insertStatement := `insert into "` + config.Configurations.TableName + `" ("entry", "value") values ($1, $2)`
 	_, err = db.Exec(insertStatement, entry, value)
 	if err != nil {
 		log.Println(`[ERROR occured] ` + err.Error())
 		return err
 	}
 	log.Println("insert successful")
+	return err
+}
+
+func ReinitializeTable() error {
+	var err error
+	db, err := connectDB()
+	if err != nil {
+		log.Println(`[ERROR occured] ` + err.Error())
+		return err
+	}
+	defer db.Close()
+	log.Println("dropping table " + config.Configurations.TableName)
+	dropStatement := `drop table "` + config.Configurations.TableName + `"`
+	_, err = db.Exec(dropStatement)
+	if err != nil {
+		log.Println(`[ERROR occured] ` + err.Error())
+		return err
+	}
+	log.Println(config.Configurations.TableName + " dropped successfully")
+	createStatement := `create table "` + config.Configurations.TableName + `" ("entry" integer unique, "value" character varying(255))`
+	_, err = db.Exec(createStatement)
+	if err != nil {
+		log.Println(`[ERROR occured] ` + err.Error())
+		return err
+	}
 	return err
 }
