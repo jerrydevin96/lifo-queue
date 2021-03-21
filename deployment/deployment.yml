@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lifo-queue
+spec:
+  selector:
+    matchLabels:
+      app: lifo-queue
+  template:
+    metadata:
+      labels:
+        app: lifo-queue
+    spec:
+      containers:
+      - name: lifo-queue
+        image: jerrydevin96/lifo-queue
+        ports:
+        - continerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: appconfig
+            optional: false
+        - secretRef:
+            name: appsecrets
+            optional: false
