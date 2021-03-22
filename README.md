@@ -54,7 +54,25 @@ docker run -d -p 3306:3306 --name mariadb-poc \
 	mariadb
 ```
 
+###### DB Initialization:
+
+- A table can be initialized manually as per the table design provided using any client for postgresql or maiadb
+- If table is not initialized manually, the application will initialize the DB during start-up
+
 ###### Application Deployment:
+
+***Application Configurations:***
+
+|    **Parameter**     |                    **Values**                     |                         **Purpose**                          |
+| :------------------: | :-----------------------------------------------: | :----------------------------------------------------------: |
+|        DBHOST        | Hostname/ IP of the server where the DB is hosted |             Host name or IP for DB connectivity              |
+|        DBPORT        |         Port on which, the DB is running          |               Port number for DB connectivity                |
+|        DBNAME        |                   Database Name                   |               Name of the database to connect                |
+|        DBUSER        |                Database user name                 |    Database user to use for connecting with the database     |
+| DBPASSWORD (secrets) |                 Database Password                 |                Password for the database user                |
+|      TABLENAME       |                Database Table Name                | Table name to use in the LIFO application. The table can be pre initialized as per table design on the application will initialize the table on runtime |
+|      DBPROVIDER      |                  maria/postgres                   | Based on the option selected, the application uses either postgres driver or mysql(maria) driver and respective queries |
+|  REINITIALIZE_TABLE  |                        Y/N                        | Providing **Y** drops and reinitializes the table, every time the application starts up. Providing **N** either uses an available preinitialized table or initializes a new table, if it is not available (wrong table structure will cause runtime errors). |
 
 The application can be deployed into any kubernetes cluster(Rancher used for testing). Before deployment, the cluster should be ready and kubeconfig should be pointing to the cluster. The following are the deployment steps:
 

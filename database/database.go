@@ -153,3 +153,20 @@ func ReinitializeTable() error {
 	}
 	return err
 }
+
+func InitializeTable() error {
+	var err error
+	db, err := connectDB()
+	if err != nil {
+		log.Println(`[ERROR occured] ` + err.Error())
+		return err
+	}
+	defer db.Close()
+	createStatement := `create table if not exists ` + config.Configurations.TableName + ` (entry integer unique, value character varying(255))`
+	_, err = db.Exec(createStatement)
+	if err != nil {
+		log.Println(`[ERROR occured] ` + err.Error())
+		return err
+	}
+	return err
+}

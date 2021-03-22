@@ -33,12 +33,22 @@ func push(w http.ResponseWriter, r *http.Request) {
 		log.Println("[ERROR] " + err.Error())
 		fmt.Fprint(w, `{response: `+err.Error()+`}`)
 	}
-	response := pushHandler(string(JSONVal))
-	fmt.Fprint(w, response)
+	if r.Method != "POST" {
+		w.WriteHeader(403)
+		fmt.Fprint(w, `{response: POST method expected}`)
+	} else {
+		response := pushHandler(string(JSONVal))
+		fmt.Fprint(w, response)
+	}
 }
 
 func pop(w http.ResponseWriter, r *http.Request) {
 	(w).Header().Set("Access-Control-Allow-Origin", "*")
-	response := popHandler()
-	fmt.Fprint(w, response)
+	if r.Method != "GET" {
+		w.WriteHeader(403)
+		fmt.Fprint(w, `{message: GET method expected, value: ""}`)
+	} else {
+		response := popHandler()
+		fmt.Fprint(w, response)
+	}
 }

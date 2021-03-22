@@ -20,6 +20,14 @@ func AppStartup() error {
 			return err
 		}
 		log.Println("database initialization completed")
+	} else if config.Configurations.ReinitializeTable == "N" {
+		log.Println("Initializing table " + config.Configurations.TableName)
+		err = database.InitializeTable()
+		if err != nil {
+			log.Println("[ERROR] error occured " + err.Error())
+			return err
+		}
+		log.Println("database initialization completed")
 	}
 
 	return err
