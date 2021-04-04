@@ -46,7 +46,7 @@ func pop(w http.ResponseWriter, r *http.Request) {
 	(w).Header().Set("Access-Control-Allow-Origin", "*")
 	if r.Method != "GET" {
 		w.WriteHeader(403)
-		fmt.Fprint(w, `{message: GET method expected, value: ""}`)
+		fmt.Fprint(w, `{message: GET method expected}`)
 	} else {
 		response := popHandler()
 		fmt.Fprint(w, response)

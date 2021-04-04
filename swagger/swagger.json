@@ -1,0 +1,131 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0.0",
+      "title": "Postgres/Maria backed LIFO queue",
+      "description": "LIFO application exposing push and pop as API endpoints",
+      "contact": {
+        "name": "Jerry(jerrydevin96)",
+        "email": "jerrydevin96@gmail.com",
+        "url": "https://www.linkedin.com/in/jerry-devin"
+      },
+      "license": {
+        "name": "The Unlicense",
+        "url": "https://unlicense.org"
+      }
+    },
+    "host": "<input-host>",
+    "basePath": "/v1",
+    "schemes": [
+      "http"
+    ],
+    "consumes": [
+      "application/json"
+    ],
+    "produces": [
+      "application/json"
+    ],
+    "paths": {
+      "/pop": {
+        "get": {
+          "description": "Returns last element from the queue and deletes it.\n",
+          "operationId": "pop",
+          "responses": {
+            "200": {
+              "description": "pop response",
+              "schema": {
+                "$ref": "#/definitions/PopOperation"
+              }
+            },
+            "403": {
+              "description": "forbidden operation",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "/push": {
+        "post": {
+          "description": "Pushes an element into the queue",
+          "operationId": "push",
+          "parameters": [
+            {
+              "name": "element",
+              "in": "body",
+              "description": "element to push into the queue",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/PushOperationRequest"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "push response",
+              "schema": {
+                "$ref": "#/definitions/PushOperationResponse"
+              }
+            },
+            "403": {
+              "description": "Forbidden Operation",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "PopOperation": {
+        "type": "object",
+        "required": [
+          "value",
+          "message"
+        ],
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "PushOperationResponse": {
+        "type": "object",
+        "required": [
+          "response"
+        ],
+        "properties": {
+          "response": {
+            "type": "string"
+          }
+        }
+      },
+      "PushOperationRequest": {
+        "type": "object",
+        "required": [
+          "value"
+        ],
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
