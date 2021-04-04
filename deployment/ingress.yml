@@ -15,4 +15,11 @@ spec:
             name: lifo-queue
             port:
               number: 8080
+      - path: /docs
+        pathType: Prefix
+        backend:
+          service:
+            name: lifo-queue
+            port:
+              number: 8083
 

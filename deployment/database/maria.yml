@@ -1,0 +1,91 @@
+#Creating PV for the DB
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: maria
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 5Gi
+  hostPath:
+    path: /data/maria/
+
+---
+#Creating PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: maria-pvc
+spec:
+  volumeName: maria
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+#postgres config
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maria-config
+  labels:
+    app: maria
+data:
+  MYSQL_ROOT_PASSWORD: root
+  MYSQL_DATABASE: lifo
+  MYSQL_USER: admin
+  MYSQL_PASSWORD: admin
+
+---
+#postgres stateful set
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: maria
+  labels:
+    app: maria
+spec:
+  replicas: 1
+  serviceName: maria
+  selector:
+    matchLabels:
+      app: maria
+  template:
+    metadata:
+      labels:
+        app: maria
+    spec:
+      containers:
+      - name: maria
+        image: mariadb
+        envFrom:
+        - configMapRef:
+            name: maria-config
+        ports:
+        - containerPort: 5432
+          name: mariadb
+        volumeMounts:
+        - name: maria
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: maria
+        persistentVolumeClaim:
+          claimName: maria-pvc
+
+---
+#Postgres service
+apiVersion: v1
+kind: Service
+metadata: 
+  name: maria
+spec:
+  type: NodePort
+  selector:
+    app: maria
+  ports:
+  - port: 3306
+

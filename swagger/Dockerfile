@@ -1,10 +1,9 @@
-FROM quay.io/goswagger/swagger
+FROM ubuntu
 
 RUN mkdir -p /swagger-client
 WORKDIR /swagger-client
 
 COPY swagger.json /swagger-client
+COPY swagger /swagger-client
 
 EXPOSE 8083
-
-CMD [swagger, "serve", " --flavor swagger --no-open --base-path=/swagger --port=8083 swagger.json"]

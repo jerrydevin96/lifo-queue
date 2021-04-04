@@ -14,7 +14,7 @@
         "url": "https://unlicense.org"
       }
     },
-    "host": "<input-host>",
+    "host": "input-host",
     "basePath": "/v1",
     "schemes": [
       "http"

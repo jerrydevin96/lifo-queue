@@ -10,3 +10,4 @@ data:
   TABLENAME: "<db table name>"
   DBPROVIDER: "<db provider (postgres/maria)>"
   REINITIALIZE_TABLE: "<Y/N>"
+  SWAGGER_HOST: "<Host name/IP for swagger to access lifo rest API>"
