@@ -6,20 +6,21 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
-  - http:
+  - host: <ingress host> #host needs to be a valid dns
+    http:
       paths:
       - path: /v1
         pathType: Prefix
         backend:
           service:
-            name: lifo-queue
+            name: lifo-service
             port:
               number: 8080
-      - path: /docs
+      - path: /
         pathType: Prefix
         backend:
           service:
-            name: lifo-queue
+            name: lifo-service
             port:
               number: 8083
 

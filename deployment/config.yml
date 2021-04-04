@@ -3,11 +3,11 @@ kind: ConfigMap
 metadata:
   name: appconfig
 data:
-  DBHOST: "<db host>"
-  DBPORT: "<db port>"
-  DBUSER: "<db user>"
-  DBNAME: "<db name>"
-  TABLENAME: "<db table name>"
-  DBPROVIDER: "<db provider (postgres/maria)>"
-  REINITIALIZE_TABLE: "<Y/N>"
+  DBHOST: "<postgres-0.postgres/maria-0.maria>"
+  DBPORT: "<5432/3306>"
+  DBUSER: "admin"
+  DBNAME: "lifo"
+  TABLENAME: "lifo"
+  DBPROVIDER: "<postgres/maria>"
+  REINITIALIZE_TABLE: "<Y/N>" #Y -> reinitializes table during ebery restart of the app
   SWAGGER_HOST: "<Host name/IP for swagger to access lifo rest API>"

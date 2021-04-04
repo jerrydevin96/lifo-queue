@@ -8,4 +8,6 @@ spec:
     app: lifo-queue
   ports:
   - port: 8080
+    name: lifo-app
   - port: 8083
+    name: lifo-docs

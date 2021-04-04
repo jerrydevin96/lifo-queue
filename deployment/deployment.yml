@@ -26,7 +26,7 @@ spec:
       - name: lifo-queue-swagger-docs
         image: jerrydevin96/lifo-queue-swagger-docs:1.0.0
         command: ["/bin/sh", "-c"]
-        args: ["cd /swagger-client && sed -i '/s/<input-host>/$SWAGGER_HOST/g' swagger.json && swagger serve --flavor swagger --no-open --port=8083 swagger.json"]
+        args: ["cd /swagger-client && sed -i 's/input-host/'\"$SWAGGER_HOST\"'/g' swagger.json && cat swagger.json && ./swagger serve --flavor swagger --no-open --port=8083 swagger.json"]
         ports:
         - containerPort: 8083
         envFrom:
