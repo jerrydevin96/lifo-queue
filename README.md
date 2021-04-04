@@ -33,7 +33,7 @@ This project implements a simple LIFO queue in *Golang* with *postgresql/mariadb
 
 ##### Latest deployment instructions inside deployment folder
 
-[deployment instructions]: https://github.com/jerrydevin96/lifo-queue/blob/main/deployment/deploy-instructions.md
+[deployment instructions]: https://github.com/jerrydevin96/lifo-queue/blob/main/deployment/deploy-instructions.md	"deployment-instructions"
 
 
 
