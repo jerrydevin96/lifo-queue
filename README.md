@@ -20,6 +20,7 @@ This project implements a simple LIFO queue in *Golang* with *postgresql/mariadb
 | :------------: | :--------------: | :---------------------------------: |
 |      GET       |     /v1/pop      | Pops the last element in the queue  |
 |      POST      |     /v1/push     | Pushes a new element into the queue |
+|       -        |      /docs       |            swagger docs             |
 
 ###### DB Table Design:
 
@@ -29,6 +30,12 @@ This project implements a simple LIFO queue in *Golang* with *postgresql/mariadb
 |      value      | character varying(255) |                 |
 
 ##### Deployment Instructions:
+
+##### Latest deployment instructions inside deployment folder
+
+[deployment instructions]: https://github.com/jerrydevin96/lifo-queue/blob/main/deployment/deploy-instructions.md
+
+
 
 ###### Setup Database:
 

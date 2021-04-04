@@ -62,4 +62,14 @@
   kubectl apply -f ingress.yml
   ```
 
-  
+
+
+
+### Access Links:
+
+|       Endpoint        |   Purpose    |
+| :-------------------: | :----------: |
+|  http://<host>/docs   | swagger docs |
+| http://<host>/v1/pop  |   pop API    |
+| http://<host>/v1/push |   push API   |
+
